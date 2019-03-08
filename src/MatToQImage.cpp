@@ -30,7 +30,7 @@
 /*                                                                      */
 /************************************************************************/
 
-#include "MatToQImage.h"
+#include "includes/MatToQImage.h"
 // Qt
 #include <QDebug>
 

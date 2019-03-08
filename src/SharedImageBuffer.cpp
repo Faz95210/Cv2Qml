@@ -30,7 +30,7 @@
 /*                                                                      */
 /************************************************************************/
 
-#include "SharedImageBuffer.h"
+#include "includes/SharedImageBuffer.h"
 
 SharedImageBuffer::SharedImageBuffer()
 {

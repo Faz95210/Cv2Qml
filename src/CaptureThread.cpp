@@ -32,8 +32,8 @@
 
 #include <QMediaResource>
 #include <QMediaPlayer>
-#include "CaptureThread.h"
-#include "MatToQImage.h"
+#include "includes/CaptureThread.h"
+#include "includes/MatToQImage.h"
 
 CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNumber, bool dropFrameIfBufferFull, int width, int height) : QThread(), sharedImageBuffer(sharedImageBuffer)
 {
@@ -123,7 +123,7 @@ void CaptureThread::run()
             // Retrieve frame
 
             cap >> grabbedFrame;
-            qDebug() << "Grab image from camera...";
+//            qDebug() << "Grab image from camera...";
             Buffer<Mat> *localDeviceBuffer = sharedImageBuffer->getByDeviceNumber(deviceNumber);
             localDeviceBuffer->add(grabbedFrame, true);
         }

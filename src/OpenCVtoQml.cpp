@@ -7,7 +7,7 @@
 #include <QMediaPlaylist>
 #include <QVideoWidget>
 #include <QMultimedia>
-#include "OpenCVtoQml.h"
+#include "includes/OpenCVtoQml.h"
 //#include "player.h"
 
 OpenCVtoQml::OpenCVtoQml(QQuickItem *parent)
@@ -79,8 +79,8 @@ void OpenCVtoQml::paint(QPainter *painter)
     painter->setRenderHints(QPainter::Antialiasing, true);
     painter->drawPie(boundingRect().adjusted(1, 1, -1, -1), _val * 16, this->height() * 16); */
 
-    qDebug() << "Paint: " << this->width() << "x" << this->height() << " | " << _cameraWidth << "x" << _cameraHeight;
-    qDebug() << "Painter: " << _lastFrame.width() << "x" << _lastFrame.height();
+    //    qDebug() << "Paint: " << this->width() << "x" << this->height() << " | " << _cameraWidth << "x" << _cameraHeight;
+    //    qDebug() << "Painter: " << _lastFrame.width() << "x" << _lastFrame.height();
     //    QTransform rotating;
     //    rotating.rotate(90);
     //    _lastFrame = _lastFrame.transformed(rotating); // Works
@@ -110,7 +110,6 @@ void OpenCVtoQml::paint(QPainter *painter)
         }
         case PreserveAspectCrop:
         {
-            qDebug("3");
             double ratioWidth = this->width() / _lastFrame.width();
             double ratioHeight = this->height() / _lastFrame.height();
 
@@ -124,7 +123,6 @@ void OpenCVtoQml::paint(QPainter *painter)
                 int newHeight = _lastFrame.height()*ratioWidth;
                 painter->drawImage(QRect(0, (this->height()-newHeight)/2, this->width(), newHeight), _lastFrame, QRect(0, 0, _lastFrame.width(), _lastFrame.height()));
             }
-            qDebug("4");
             break;
         }
         default:
@@ -136,7 +134,6 @@ void OpenCVtoQml::paint(QPainter *painter)
 
 void OpenCVtoQml::updateFrame(QImage img)
 {
-    qDebug("updating frame");
     _lastFrame = img;
     setFaces(_captureThread->getFaces());
     this->update();
