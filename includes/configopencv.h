@@ -37,8 +37,8 @@
 
 #define CLIPS_VALIDATION_TIMEOUT            1500
 
-#define OPENCV_FACE_DETECTION               1
-#define OPENCV_FACE_DETECTION_HAARCASCADE   "/usr/local/Cellar/opencv/3.4.5/share/OpenCV/haarcascades/haarcascade_frontalface_alt2.xml"
+//#define OPENCV_FACE_DETECTION               1
+//#define OPENCV_FACE_DETECTION_HAARCASCADE   "/usr/local/Cellar/opencv/3.4.5/share/OpenCV/haarcascades/haarcascade_frontalface_alt2.xml"
 
 #endif // CONFIGOPENCV
 

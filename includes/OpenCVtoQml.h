@@ -15,8 +15,10 @@
 class OPENCVTOQMLSHARED_EXPORT OpenCVtoQml : public QQuickPaintedItem
 {
     Q_OBJECT
-    Q_PROPERTY(QString mode READ getMode WRITE setMode)
 
+    Q_PROPERTY(QString mode READ getMode WRITE setMode)
+    Q_PROPERTY(bool faceDetectionFlag READ faceDetectionFlag WRITE setFaceDetectionFlag NOTIFY faceDetectionFlagChanged)
+    Q_PROPERTY(QString haarCascade READ haarCascade WRITE setHaarCascade NOTIFY haarCascadeChanged)
     Q_PROPERTY(int cameraId READ getCameraId WRITE setCameraId)
     Q_PROPERTY(int cameraWidth READ getCameraWidth WRITE setCameraWidth)
     Q_PROPERTY(int cameraHeight READ getCameraHeight WRITE setCameraHeight)
@@ -90,6 +92,16 @@ public:
         return m_faces;
     }
 
+    bool faceDetectionFlag() const
+    {
+        return m_faceDetectionFlag;
+    }
+
+    QString haarCascade() const
+    {
+        return m_haarCascade;
+    }
+
 public slots:
     void setFaces(std::vector<Rect> faces)
     {
@@ -98,6 +110,24 @@ public slots:
 
         m_faces = faces;
         emit facesChanged(m_faces);
+    }
+
+    void setFaceDetectionFlag(bool faceDetectionFlag)
+    {
+        if (m_faceDetectionFlag == faceDetectionFlag)
+            return;
+
+        m_faceDetectionFlag = faceDetectionFlag;
+        emit faceDetectionFlagChanged(m_faceDetectionFlag);
+    }
+
+    void setHaarCascade(QString haarCascade)
+    {
+        if (m_haarCascade == haarCascade)
+            return;
+
+        m_haarCascade = haarCascade;
+        emit haarCascadeChanged(m_haarCascade);
     }
 
 private slots:
@@ -111,6 +141,10 @@ signals:
     void fpsChanged(int);
 
     void facesChanged(std::vector<Rect> faces);
+
+    void faceDetectionFlagChanged(bool faceDetectionFlag);
+
+    void haarCascadeChanged(QString haarCascade);
 
 private:
     bool connectToCamera(bool dropFrameIfBufferFull, int capThreadPrio, int procThreadPrio, /*bool enableFrameProcessing,*/ int width, int height);
@@ -136,6 +170,8 @@ private:
 
     QImage _lastFrame;
     std::vector<Rect> m_faces;
+    bool m_faceDetectionFlag;
+    QString m_haarCascade;
 };
 
 #endif // OPENCVTOQML_H

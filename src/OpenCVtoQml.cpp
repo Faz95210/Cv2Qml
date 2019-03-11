@@ -86,12 +86,10 @@ void OpenCVtoQml::paint(QPainter *painter)
     //    _lastFrame = _lastFrame.transformed(rotating); // Works
     switch (_fillMode) {
         case Stretch:
-            qDebug("1");
             painter->drawImage(QRect(0, 0, this->width(), this->height()), _lastFrame, QRect(0, 0, _lastFrame.width(), _lastFrame.height()));
             break;
         case PreserveAspectFit:
         {
-            qDebug("2");
             double ratioWidth = this->width() / _lastFrame.width();
             double ratioHeight = this->height() / _lastFrame.height();
 
@@ -149,7 +147,7 @@ bool OpenCVtoQml::connectToCamera(bool dropFrameIfBufferFull, int capThreadPrio,
         qDebug() << "Connecting to camera...";
 
     // Create capture thread
-    _captureThread = new CaptureThread(_sharedImageBuffer, _cameraId, dropFrameIfBufferFull, width, height);
+    _captureThread = new CaptureThread(_sharedImageBuffer, _cameraId, dropFrameIfBufferFull, width, height, m_faceDetectionFlag, m_haarCascade);
     connect(_captureThread, SIGNAL(newFrame(QImage)), this, SLOT(updateFrame(QImage)));
     // Attempt to connect to camera
     if(_captureThread->connectToCamera())
@@ -181,7 +179,7 @@ bool OpenCVtoQml::connectToVideo(bool dropFrameIfBufferFull, int capThreadPrio, 
         qDebug() << "Connecting to video...";
 
     // Create capture thread
-    _captureThread = new CaptureThread(_sharedImageBuffer, _videoSource, dropFrameIfBufferFull, width, height);
+    _captureThread = new CaptureThread(_sharedImageBuffer, _videoSource, dropFrameIfBufferFull, width, height, m_faceDetectionFlag, m_haarCascade);
     connect(this, SIGNAL(loopChanged(bool)), _captureThread, SLOT(onLoopChanged(bool)));
     connect(this, SIGNAL(videoSourceChanged(QString)), _captureThread, SLOT(onVideoSourceChanged(QString)));
     connect(this, SIGNAL(fpsChanged(int)), _captureThread, SLOT(onFpsChanged(int)));
@@ -290,8 +288,6 @@ void OpenCVtoQml::changeVideoSource(QString videoSource)
 #include <QMediaMetaData>
 void OpenCVtoQml::onVideoSourceChanged(QString video)
 {
-
-
     // QString temp = QFileDialog::getOpenFileName(this, "Ouvrir un fichier", QString(), "Musique (*.mp3 *.wav *.aac *.wav)");
     QMediaPlayer *player = new QMediaPlayer();
     player->setMedia(QUrl::fromLocalFile(video.replace("file://", "")));

@@ -57,8 +57,8 @@ class OPENCVTOQMLSHARED_EXPORT CaptureThread : public QThread
     Q_OBJECT
 
 public:
-    CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNumber, bool dropFrameIfBufferFull, int width, int height);
-    CaptureThread(SharedImageBuffer *sharedImageBuffer, QString videoSource, bool dropFrameIfBufferFull, int width, int height);
+    CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNumber, bool dropFrameIfBufferFull, int width, int height, bool faceDetectionEnabled, QString haarcascade = "");
+    CaptureThread(SharedImageBuffer *sharedImageBuffer, QString videoSource, bool dropFrameIfBufferFull, int width, int height, bool faceDetectionEnabled, QString haarcascade = "");
     void stop();
     bool connectToCamera();
     bool connectToVideo();
@@ -71,9 +71,9 @@ public:
     std::vector<Rect> &getFaces();
 
 private:
-
-    bool faceDetectionEnabled = OPENCV_FACE_DETECTION;
-    FaceDetection _faceDetection;
+    QString haarCascade;
+    bool faceDetectionEnabled = false;
+    FaceDetection *_faceDetection;
     void updateFPS(int);
     SharedImageBuffer *sharedImageBuffer;
     VideoCapture cap;

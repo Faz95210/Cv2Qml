@@ -12,6 +12,8 @@ TEMPLATE = lib
 
 DEFINES += OPENCVTOQML_LIBRARY
 
+VERSION = 1.1.0
+
 SOURCES += \
         src/FaceDetection.cpp \
         src/OpenCVtoQml.cpp \

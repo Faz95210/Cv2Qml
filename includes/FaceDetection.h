@@ -11,7 +11,7 @@ using namespace cv;
 class FaceDetection
 {
 public:
-    FaceDetection();
+    FaceDetection(QString haarCascade);
     void update(const Mat &lastFrame);
     std::vector<Rect> &getFoundFaces();
 private:

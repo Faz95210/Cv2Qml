@@ -35,9 +35,12 @@
 #include "includes/CaptureThread.h"
 #include "includes/MatToQImage.h"
 
-CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNumber, bool dropFrameIfBufferFull, int width, int height) : QThread(), sharedImageBuffer(sharedImageBuffer)
+CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNumber, bool dropFrameIfBufferFull, int width, int height, bool faceDetectionEnabled, QString haarCascade)
+    : QThread(), _faceDetection(faceDetectionEnabled ? new FaceDetection(haarCascade) : nullptr), sharedImageBuffer(sharedImageBuffer)
 {
     // Save passed parameters
+    this->haarCascade = haarCascade;
+    this->faceDetectionEnabled = faceDetectionEnabled;
     this->dropFrameIfBufferFull=dropFrameIfBufferFull;
     this->deviceNumber=deviceNumber;
     this->videoSource = "";
@@ -55,10 +58,13 @@ CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNum
     statsData.nFramesProcessed=0;
 }
 
-CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, QString videoSource, bool dropFrameIfBufferFull, int width, int height) : QThread(), sharedImageBuffer(sharedImageBuffer)
+CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, QString videoSource, bool dropFrameIfBufferFull, int width, int height, bool faceDetectionEnabled, QString haarCascade)
+    : QThread(), _faceDetection(faceDetectionEnabled ? new FaceDetection(haarCascade) : nullptr), sharedImageBuffer(sharedImageBuffer)
 {
     // Save passed parameters
+    this->haarCascade = haarCascade;
     this->dropFrameIfBufferFull=dropFrameIfBufferFull;
+    this->faceDetectionEnabled = faceDetectionEnabled;
     this->videoSource=videoSource;
     this->deviceNumber = -1;
     this->width = width;
@@ -119,7 +125,7 @@ void CaptureThread::run()
             // Retrieve frame
 
             cap >> grabbedFrame;
-//            qDebug() << "Grab image from camera...";
+            //            qDebug() << "Grab image from camera...";
             Buffer<Mat> *localDeviceBuffer = sharedImageBuffer->getByDeviceNumber(deviceNumber);
             localDeviceBuffer->add(grabbedFrame, true);
         }
@@ -162,8 +168,8 @@ void CaptureThread::run()
             }
         }
 
-        if (faceDetectionEnabled){
-            _faceDetection.update(grabbedFrame);
+        if (faceDetectionEnabled && _faceDetection != nullptr){
+            _faceDetection->update(grabbedFrame);
         }
         frame=MatToQImage(grabbedFrame);
         emit newFrame(frame);

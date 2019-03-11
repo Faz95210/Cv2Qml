@@ -1,8 +1,9 @@
 #include "includes/FaceDetection.h"
 
-FaceDetection::FaceDetection()
+FaceDetection::FaceDetection(QString haarCascade)
 {
-    frontalFaceClassifier.load(OPENCV_FACE_DETECTION_HAARCASCADE);
+    frontalFaceClassifier.load(haarCascade.toStdString());
+    qDebug() << "Initializing OpenCVtoQML with FaceDetection ON";
 }
 
 std::vector<Rect>& FaceDetection::getFoundFaces(){
