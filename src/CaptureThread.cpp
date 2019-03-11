@@ -53,10 +53,6 @@ CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNum
     fps.clear();
     statsData.averageFPS=0;
     statsData.nFramesProcessed=0;
-
-#if OPENCV_FACE_DETECTION
-    qDebug("OUazeazeazeI");
-#endif
 }
 
 CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, QString videoSource, bool dropFrameIfBufferFull, int width, int height) : QThread(), sharedImageBuffer(sharedImageBuffer)
