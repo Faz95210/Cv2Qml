@@ -35,51 +35,47 @@
 #include "includes/CaptureThread.h"
 #include "includes/MatToQImage.h"
 
-CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNumber, bool dropFrameIfBufferFull, int width, int height, bool faceDetectionEnabled, QString haarCascade)
-    : QThread(), _faceDetection(faceDetectionEnabled ? new FaceDetection(haarCascade) : nullptr), sharedImageBuffer(sharedImageBuffer)
+CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNumber, bool dropFrameIfBufferFull, int width, int height)
+    : QThread(), sharedImageBuffer(sharedImageBuffer)
 {
     // Save passed parameters
-    this->haarCascade = haarCascade;
-    this->faceDetectionEnabled = faceDetectionEnabled;
     this->dropFrameIfBufferFull=dropFrameIfBufferFull;
     this->deviceNumber=deviceNumber;
     this->videoSource = "";
     this->width = width;
     this->height = height;
     // Initialize variables(s)
-    _delay = 0;
-    _fps = 30;
-    _loop = false;
-    doStop=false;
-    sampleNumber=0;
-    fpsSum=0;
+    _delay                      = 0;
+    _fps                        = 30;
+    _loop                       = false;
+    doStop                      =false;
+    sampleNumber                =0;
+    fpsSum                      =0;
     fps.clear();
-    statsData.averageFPS=0;
-    statsData.nFramesProcessed=0;
+    statsData.averageFPS        =0;
+    statsData.nFramesProcessed  =0;
 }
 
-CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, QString videoSource, bool dropFrameIfBufferFull, int width, int height, bool faceDetectionEnabled, QString haarCascade)
-    : QThread(), _faceDetection(faceDetectionEnabled ? new FaceDetection(haarCascade) : nullptr), sharedImageBuffer(sharedImageBuffer)
+CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, QString videoSource, bool dropFrameIfBufferFull, int width, int height)
+    : QThread(), sharedImageBuffer(sharedImageBuffer)
 {
     // Save passed parameters
-    this->haarCascade = haarCascade;
-    this->dropFrameIfBufferFull=dropFrameIfBufferFull;
-    this->faceDetectionEnabled = faceDetectionEnabled;
-    this->videoSource=videoSource;
-    this->deviceNumber = -1;
-    this->width = width;
-    this->height = height;
+    this->dropFrameIfBufferFull     = dropFrameIfBufferFull;
+    this->videoSource               = videoSource;
+    this->deviceNumber              = -1;
+    this->width                     = width;
+    this->height                    = height;
     // Initialize variables(s)
-    _delay = 0;
-    _fps = 30;
-    capVideo = nullptr;
-    _loop = false;
-    doStop=false;
-    sampleNumber=0;
-    fpsSum=0;
+    _delay                          = 0;
+    _fps                            = 30;
+    capVideo                        = nullptr;
+    _loop                           = false;
+    doStop                          = false;
+    sampleNumber                    = 0;
+    fpsSum                          = 0;
     fps.clear();
-    statsData.averageFPS=0;
-    statsData.nFramesProcessed=0;
+    statsData.averageFPS            = 0;
+    statsData.nFramesProcessed      = 0;
 }
 
 void CaptureThread::run()
@@ -168,9 +164,12 @@ void CaptureThread::run()
             }
         }
 
-        if (faceDetectionEnabled && _faceDetection != nullptr){
-            _faceDetection->update(grabbedFrame);
-        }
+//        if (faceDetectionEnabled && _faceDetection != nullptr){
+//            _faceDetection->update(grabbedFrame);
+//            if (faces.size() > 0) {
+//                emit facesUpdated();
+//            }
+//        }
         frame=MatToQImage(grabbedFrame);
         emit newFrame(frame);
         msleep(_delay);
@@ -355,7 +354,12 @@ int CaptureThread::getInputSourceHeight()
     return cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 }
 
-std::vector<Rect> &CaptureThread::getFaces()
+Mat CaptureThread::getLastFrame() const
 {
-    return faces;
+    return grabbedFrame;
 }
+
+//std::vector<Rect> &CaptureThread::getFaces()
+//{
+//    return faces;
+//}

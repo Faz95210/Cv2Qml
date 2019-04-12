@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT      += quick multimedia multimediawidgets
+QT      += quick multimedia multimediawidgets core
 
 TARGET = OpenCVtoQml
 

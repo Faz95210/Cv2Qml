@@ -46,8 +46,6 @@
 #include "Structures.h"
 #include "OpenCVtoQml_global.h"
 
-#include"FaceDetection.h"
-
 using namespace cv;
 
 class ImageBuffer;
@@ -57,62 +55,59 @@ class OPENCVTOQMLSHARED_EXPORT CaptureThread : public QThread
     Q_OBJECT
 
 public:
-    CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNumber, bool dropFrameIfBufferFull, int width, int height, bool faceDetectionEnabled, QString haarcascade = "");
-    CaptureThread(SharedImageBuffer *sharedImageBuffer, QString videoSource, bool dropFrameIfBufferFull, int width, int height, bool faceDetectionEnabled, QString haarcascade = "");
-    void stop();
-    bool connectToCamera();
-    bool connectToVideo();
-    bool disconnectCamera();
-    bool disconnectVideo();
-    bool isCameraConnected();
-    bool isVideoConnected();
-    int getInputSourceWidth();
-    int getInputSourceHeight();
-    std::vector<Rect> &getFaces();
-
+    CaptureThread(SharedImageBuffer *sharedImageBuffer, int deviceNumber, bool dropFrameIfBufferFull, int width, int height);
+    CaptureThread(SharedImageBuffer *sharedImageBuffer, QString videoSource, bool dropFrameIfBufferFull, int width, int height);
+    void                stop();
+    bool                connectToCamera();
+    bool                connectToVideo();
+    bool                disconnectCamera();
+    bool                disconnectVideo();
+    bool                isCameraConnected();
+    bool                isVideoConnected();
+    int                 getInputSourceWidth();
+    int                 getInputSourceHeight();
+    Mat             getLastFrame() const;
 private:
-    QString haarCascade;
-    bool faceDetectionEnabled = false;
-    FaceDetection *_faceDetection;
-    void updateFPS(int);
-    SharedImageBuffer *sharedImageBuffer;
-    VideoCapture cap;
-    CvCapture *capVideo;
-    Mat grabbedFrame;
-    IplImage* frameVideo;
-    QTime t;
-    QMutex doStopMutex;
-    QMutex changeVideoMutex;
-    QQueue<int> fps;
-    QImage frame;
+    void                updateFPS(int);
+    SharedImageBuffer   *sharedImageBuffer;
+    VideoCapture        cap;
+    CvCapture           *capVideo;
+    Mat                 grabbedFrame;
+    IplImage            *frameVideo;
+    QTime               t;
+    QMutex              doStopMutex;
+    QMutex              changeVideoMutex;
+    QQueue<int>         fps;
+    QImage              frame;
     struct ThreadStatisticsData statsData;
-    volatile bool doStop;
-    int captureTime;
-    int sampleNumber;
-    int fpsSum;
-    bool dropFrameIfBufferFull;
-    int deviceNumber;
-    QString videoSource;
-    int width;
-    int height;
+    volatile bool       doStop;
+    int                 captureTime;
+    int                 sampleNumber;
+    int                 fpsSum;
+    bool                dropFrameIfBufferFull;
+    int                 deviceNumber;
+    QString             videoSource;
+    int                 width;
+    int                 height;
 
-    bool _loop;
-    int _fps;
-    int _delay;
+    bool                _loop;
+    int                 _fps;
+    int                 _delay;
 
-    std::vector<Rect> faces = std::vector<Rect>();
+    std::vector<Rect>   faces = std::vector<Rect>();
 
 protected:
-    void run();
+    void                run();
 
 public slots:
-    void onLoopChanged(bool loop) { qDebug() << "lopp changed: " << loop; _loop = loop; }
-    void onVideoSourceChanged(QString video) { qDebug() << "videoSourceChanged: " << video; videoSource = video; connectToVideo(); }
-    void onFpsChanged(int fps) { _fps = fps; }
+    void                onLoopChanged(bool loop) { qDebug() << "lopp changed: " << loop; _loop = loop; }
+    void                onVideoSourceChanged(QString video) { qDebug() << "videoSourceChanged: " << video; videoSource = video; connectToVideo(); }
+    void                onFpsChanged(int fps) { _fps = fps; }
 
 signals:
-    void updateStatisticsInGUI(struct ThreadStatisticsData);
-    void newFrame(const QImage &frame);
+    void                updateStatisticsInGUI(struct ThreadStatisticsData);
+    void                newFrame(const QImage &frame);
+    void                facesUpdated();
 };
 
 #endif // CAPTURETHREAD_H

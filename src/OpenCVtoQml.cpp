@@ -13,12 +13,11 @@
 OpenCVtoQml::OpenCVtoQml(QQuickItem *parent)
     : QQuickPaintedItem(parent)
 {
-    _fillMode = Stretch;
-    _loop     = false;
-    _captureThread = nullptr;
-    _imageBuffer = nullptr;
-    _sharedImageBuffer = nullptr;
-    // connect(this, SIGNAL(videoSourceCh   anged(QString)), this, SLOT(onVideoSourceChanged(QString)));
+    _fillMode           = Stretch;
+    _loop               = false;
+    _captureThread      = nullptr;
+    _imageBuffer        = nullptr;
+    _sharedImageBuffer  = nullptr;
 }
 
 void OpenCVtoQml::start()
@@ -33,8 +32,8 @@ void OpenCVtoQml::start()
     else if (_mode == "camera")
     {
         qDebug() << "Camera Mode";
-        _imageBuffer = new Buffer<Mat>(DEFAULT_IMAGE_BUFFER_SIZE /*cameraConnectDialog->getImageBufferSize()*/);
-        _sharedImageBuffer = new SharedImageBuffer();
+        _imageBuffer        = new Buffer<Mat>(DEFAULT_IMAGE_BUFFER_SIZE /*cameraConnectDialog->getImageBufferSize()*/);
+        _sharedImageBuffer  = new SharedImageBuffer();
         _sharedImageBuffer->add(_cameraId, _imageBuffer, false /*ui->actionSynchronizeStreams->isChecked()*/);
 
         connectToCamera(false /*cameraConnectDialog->getDropFrameCheckBoxState()*/,
@@ -68,6 +67,29 @@ void OpenCVtoQml::pause()
     // Stop capture thread
     if ((_captureThread != nullptr) && (_captureThread->isRunning()))
         stopCaptureThread();
+}
+
+void OpenCVtoQml::setFillMode(OpenCVtoQml::FillMode fillMode)
+{
+    _fillMode = fillMode;
+    emit fillModeChanged(fillMode);
+}
+
+OpenCVtoQml::FillMode OpenCVtoQml::fillMode() const
+{ return _fillMode; }
+
+void OpenCVtoQml::setFps(int fps)
+{
+    _fps = fps;
+    emit fpsChanged(fps);
+}
+
+int OpenCVtoQml::fps() const { return _fps; }
+
+void OpenCVtoQml::setLoop(bool loop)
+{
+    _loop = loop;
+    emit loopChanged(loop);
 }
 
 
@@ -129,13 +151,43 @@ void OpenCVtoQml::paint(QPainter *painter)
 
 }
 
+Mat OpenCVtoQml::frame() const
+{
+    return m_frame;
+}
+
+void OpenCVtoQml::setFrame(Mat frame)
+{
+    m_frame = frame;
+}
+
+//std::vector<cv::Rect> OpenCVtoQml::faces() const
+//{
+//    return m_faces;
+//}
+
+//bool OpenCVtoQml::faceDetectionFlag() const
+//{
+//    return m_faceDetectionFlag;
+//}
+
+//QString OpenCVtoQml::haarCascade() const
+//{
+//    return m_haarCascade;
+//}
+
+//void OpenCVtoQml::setFaces()
+//{
+//    m_faces = _captureThread->getFaces();
+//    emit facesChanged(m_faces);
+//}
 
 void OpenCVtoQml::updateFrame(QImage img)
 {
     _lastFrame = img;
-    setFaces(_captureThread->getFaces());
+//    setFaces();
+    setFrame(_captureThread->getLastFrame());
     this->update();
-
 }
 
 bool OpenCVtoQml::connectToCamera(bool dropFrameIfBufferFull, int capThreadPrio, int procThreadPrio, /*bool enableFrameProcessing,*/ int width, int height)
@@ -147,8 +199,9 @@ bool OpenCVtoQml::connectToCamera(bool dropFrameIfBufferFull, int capThreadPrio,
         qDebug() << "Connecting to camera...";
 
     // Create capture thread
-    _captureThread = new CaptureThread(_sharedImageBuffer, _cameraId, dropFrameIfBufferFull, width, height, m_faceDetectionFlag, m_haarCascade);
+    _captureThread = new CaptureThread(_sharedImageBuffer, _cameraId, dropFrameIfBufferFull, width, height);
     connect(_captureThread, SIGNAL(newFrame(QImage)), this, SLOT(updateFrame(QImage)));
+//    connect(_captureThread, SIGNAL(facesUpdated()), this, SLOT(setFaces()));
     // Attempt to connect to camera
     if(_captureThread->connectToCamera())
     {
@@ -179,11 +232,12 @@ bool OpenCVtoQml::connectToVideo(bool dropFrameIfBufferFull, int capThreadPrio, 
         qDebug() << "Connecting to video...";
 
     // Create capture thread
-    _captureThread = new CaptureThread(_sharedImageBuffer, _videoSource, dropFrameIfBufferFull, width, height, m_faceDetectionFlag, m_haarCascade);
+    _captureThread = new CaptureThread(_sharedImageBuffer, _videoSource, dropFrameIfBufferFull, width, height);
     connect(this, SIGNAL(loopChanged(bool)), _captureThread, SLOT(onLoopChanged(bool)));
     connect(this, SIGNAL(videoSourceChanged(QString)), _captureThread, SLOT(onVideoSourceChanged(QString)));
     connect(this, SIGNAL(fpsChanged(int)), _captureThread, SLOT(onFpsChanged(int)));
     connect(_captureThread, SIGNAL(newFrame(QImage)), this, SLOT(updateFrame(QImage)));
+//    connect(_captureThread, SIGNAL(facesUpdated()), this, SLOT(setFaces()));
 
     qDebug() << "CaptureThread created...";
 
