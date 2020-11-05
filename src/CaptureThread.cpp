@@ -68,7 +68,7 @@ CaptureThread::CaptureThread(SharedImageBuffer *sharedImageBuffer, QString video
     // Initialize variables(s)
     _delay                          = 0;
     _fps                            = 30;
-    capVideo                        = nullptr;
+//    capVideo                        = nullptr;
     _loop                           = false;
     doStop                          = false;
     sampleNumber                    = 0;
@@ -129,26 +129,19 @@ void CaptureThread::run()
         {
             qDebug() << "grab frame from video...";
             changeVideoMutex.lock();
-            if (capVideo)
-            { frameVideo = cvQueryFrame( capVideo ); }
-            else
-            { frameVideo = nullptr; }
-
-
-            if (frameVideo)
-            {
-                grabbedFrame = cvarrToMat(frameVideo);
-
+            if (cap.isOpened()) {
+//                cap.read(capV)
+                cap.read(grabbedFrame);
                 qDebug() << "add video frame...";
 
-                //sharedImageBuffer->getByVideoSource("video"/*videoSource*/)->add(grabbedFrame, dropFrameIfBufferFull);
             }
+
             changeVideoMutex.unlock();
 
 
 
 
-            if (!frameVideo)
+            if (grabbedFrame.empty())
             {
                 if (_loop)
                 {
@@ -164,13 +157,7 @@ void CaptureThread::run()
             }
         }
 
-//        if (faceDetectionEnabled && _faceDetection != nullptr){
-//            _faceDetection->update(grabbedFrame);
-//            if (faces.size() > 0) {
-//                emit facesUpdated();
-//            }
-//        }
-        frame=MatToQImage(grabbedFrame);
+        frame = MatToQImage(grabbedFrame);
         emit newFrame(frame);
         msleep(_delay);
 
@@ -190,9 +177,9 @@ bool CaptureThread::connectToCamera()
     bool camOpenResult = cap.open(deviceNumber);
     // Set resolution
     if(width != -1)
-        cap.set(CV_CAP_PROP_FRAME_WIDTH, width);
+        cap.set(CAP_PROP_FRAME_WIDTH, width);
     if(height != -1)
-        cap.set(CV_CAP_PROP_FRAME_HEIGHT, height);
+        cap.set(CAP_PROP_FRAME_HEIGHT, height);
 
     qDebug() << "Camera : " << width << height;
 
@@ -211,8 +198,9 @@ bool CaptureThread::connectToVideo()
     disconnectVideo();
 
     QMutexLocker locker(&changeVideoMutex);
-    capVideo = cvCreateFileCapture(videoSource.toLatin1());
-    bool videoOpenResult = (capVideo != nullptr);
+    cap = VideoCapture(videoSource.toStdString());
+//    capVideo = cvCreateFileCapture(videoSource.toLatin1());
+    bool videoOpenResult = (cap.isOpened());
     /*
     QMediaResource media = QMediaResource(QUrl::fromLocalFile(videoSource));
     qDebug() << "Media: resolution: " << media.resolution().width() << "x" << media.resolution().height();
@@ -278,11 +266,11 @@ bool CaptureThread::disconnectVideo()
 {
     QMutexLocker locker(&changeVideoMutex);
     // Camera is connected
-    if(capVideo)
+    if(cap.isOpened())
     {
         // Disconnect camera
-        cvReleaseCapture(&capVideo);
-        capVideo = nullptr;
+
+        cap.release();
         return true;
     }
     // Camera is NOT connected
@@ -340,18 +328,18 @@ bool CaptureThread::isCameraConnected()
 
 bool CaptureThread::isVideoConnected()
 {
-    return (capVideo != nullptr);
+    return (cap.isOpened());
 }
 
 
 int CaptureThread::getInputSourceWidth()
 {
-    return cap.get(CV_CAP_PROP_FRAME_WIDTH);
+    return cap.get(CAP_PROP_FRAME_WIDTH);
 }
 
 int CaptureThread::getInputSourceHeight()
 {
-    return cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+    return cap.get(CAP_PROP_FRAME_HEIGHT);
 }
 
 Mat CaptureThread::getLastFrame() const

@@ -39,7 +39,7 @@
 #include <QDebug>
 #include <QImage>
 // OpenCV
-#include "opencv/highgui.h"
+#include "opencv2/highgui.hpp"
 // Local
 #include "SharedImageBuffer.h"
 #include "configopencv.h"
@@ -71,9 +71,9 @@ private:
     void                updateFPS(int);
     SharedImageBuffer   *sharedImageBuffer;
     VideoCapture        cap;
-    CvCapture           *capVideo;
+//    CvCapture           *capVideo;
     Mat                 grabbedFrame;
-    IplImage            *frameVideo;
+//    IplImage            *frameVideo;
     QTime               t;
     QMutex              doStopMutex;
     QMutex              changeVideoMutex;
