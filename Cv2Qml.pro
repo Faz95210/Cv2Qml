@@ -12,10 +12,6 @@ TEMPLATE = lib
 
 DEFINES += OPENCVTOQML_LIBRARY
 
-OPEN_CV_PATH = /usr/local/Cellar/opencv
-OPEN_CV_VERSION = 4.4
-OPEN_CV_MINOR = 0_2
-OPEN_CV_FULL_PATH = $${OPEN_CV_PATH}/$${OPEN_CV_VERSION}.$${OPEN_CV_MINOR}
 
 VERSION = 1.1.0
 
@@ -39,13 +35,33 @@ HEADERS += \
 
 DESTDIR = ../build/lib
 
-INCLUDEPATH += $${OPEN_CV_FULL_PATH}/include/opencv4/
-INCLUDEPATH += $${OPEN_CV_FULL_PATH}/lib/
 
-LIBS += \
-    -L$${OPEN_CV_FULL_PATH}/lib \
-    -lopencv_bgsegm.$${OPEN_CV_VERSION} -lopencv_shape -lopencv_video \
-    -lopencv_highgui -lopencv_videoio -lopencv_flann \
-    -lopencv_xobjdetect -lopencv_imgcodecs -lopencv_objdetect \
-    -lopencv_xphoto -lopencv_imgproc -lopencv_core \
-    -lopencv_face
+macx {
+    OPEN_CV_PATH = /usr/local/Cellar/opencv
+    OPEN_CV_VERSION = 4.4
+    OPEN_CV_MINOR = 0_2
+    OPEN_CV_FULL_PATH = $${OPEN_CV_PATH}/$${OPEN_CV_VERSION}.$${OPEN_CV_MINOR}
+
+    INCLUDEPATH += $${OPEN_CV_FULL_PATH}/include/opencv4/
+    INCLUDEPATH += $${OPEN_CV_FULL_PATH}/lib/
+
+    LIBS += \
+        -L$${OPEN_CV_FULL_PATH}/lib \
+        -lopencv_bgsegm.$${OPEN_CV_VERSION} -lopencv_shape -lopencv_video \
+        -lopencv_highgui -lopencv_videoio -lopencv_flann \
+        -lopencv_xobjdetect -lopencv_imgcodecs -lopencv_objdetect \
+        -lopencv_xphoto -lopencv_imgproc -lopencv_core \
+        -lopencv_face
+}
+linux {
+    OPEN_CV_LIBS_PATH = /usr/local/lib/
+    INCLUDEPATH += /usr/local/include/opencv4/
+    INCLUDEPATH += $${OPEN_CV_LIBS_PATH}
+
+    LIBS += \
+        -L$${OPEN_CV_LIBS_PATH}/lib \
+        -lopencv_video \
+        -lopencv_highgui -lopencv_videoio -lopencv_flann \
+        -lopencv_imgcodecs -lopencv_objdetect \
+        -lopencv_imgproc -lopencv_core
+}
